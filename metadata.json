@@ -1,0 +1,6 @@
+{
+  "name": "Doctor Connect",
+  "description": "Full-stack clinic management system Doctor Connect with receptionist and doctor role dashboards, patient records, append-only clinical notes timeline, smart appointment scheduling with conflict prevention, Africa's Talking Kenya SMS reminders, and admin reporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
