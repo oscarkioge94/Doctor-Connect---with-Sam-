@@ -115,9 +115,9 @@ export const ReceptionistDashboard: React.FC<{ onViewPatientDetail: (id: string)
     setIsSubmittingBooking(true);
     try {
       const createdApt = await api.createAppointment({
-        patientId: selectedPatientId,
-        doctorId: selectedDoctorId,
-        datetime: currentSlotStr,
+        patient_id: selectedPatientId,
+        doctor_id: selectedDoctorId,
+        datetime_slot: currentSlotStr,
         reason: reason.trim()
       });
 

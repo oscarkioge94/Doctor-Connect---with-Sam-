@@ -6,15 +6,61 @@ export interface User {
   fullName: string;
   role: UserRole;
   specialty?: string;
+  phone?: string;
+  lastLoginAt?: string;
+  isCurrentlyActive?: boolean;
+}
+
+export interface LoginInitResponse {
+  requires2FA: boolean;
+  pendingToken: string;
+  userId: string;
+  maskedPhone: string | null;
+  maskedEmail: string | null;
+  availableMethods: string[];
+  defaultMethod: string;
+}
+
+export interface LoginEvent {
+  id: string;
+  userId?: string;
+  userName?: string;
+  email: string;
+  method: string;
+  ipAddress?: string;
+  userAgent?: string;
+  success: boolean;
+  failureReason?: string;
+  timestamp: string;
+  relativeTime: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  details?: Record<string, any>;
+  createdAt: string;
+  relativeTime: string;
+  description: string;
 }
 
 export interface Patient {
   id: string;
-  name: string;
+  fullName?: string;
+  name?: string;
   dob: string; // YYYY-MM-DD
   gender: 'Male' | 'Female' | 'Other';
   phone: string;
   nationalId: string;
+  email?: string;
+  bloodType?: string;
+  allergies?: string;
+  preExistingConditions?: string;
   createdAt: string;
   lastVisitDate?: string;
   totalVisits?: number;
@@ -47,9 +93,11 @@ export interface Appointment {
   doctorId: string;
   doctorName?: string;
   doctorSpecialty?: string;
-  datetime: string; // ISO String or YYYY-MM-DD HH:mm
+  datetimeSlot?: string;
+  datetime?: string; // ISO String or YYYY-MM-DD HH:mm
   status: 'scheduled' | 'completed' | 'cancelled' | 'no-show';
   reason: string;
+  notes?: string;
   notesCount?: number;
   reminderSent?: boolean;
   createdAt: string;
@@ -61,9 +109,10 @@ export interface SMSReminder {
   patientName: string;
   phone: string;
   message: string;
-  status: 'sent' | 'failed' | 'simulated';
-  responseCode: string;
-  cost: string;
+  status: 'sent' | 'failed' | 'simulated' | 'delivered';
+  responseCode?: string;
+  provider?: string;
+  cost?: string;
   sentAt: string;
 }
 
@@ -75,12 +124,8 @@ export interface HealthStatus {
 }
 
 export interface ClinicStats {
-  todayAppointmentsCount: number;
-  completedToday: number;
-  scheduledToday: number;
+  todayAppointments: number;
+  completedAppointments: number;
   totalPatients: number;
-  totalDoctors: number;
-  smsSentToday: number;
-  dailyCounts: { date: string; count: number; completed: number }[];
-  doctorWorkload: { doctorName: string; count: number }[];
+  totalRemindersSent: number;
 }

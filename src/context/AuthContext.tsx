@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole } from '../types';
-import { api, getAuthToken, setAuthToken } from '../lib/api';
+import { User, UserRole, LoginInitResponse } from '../types';
+import { api } from '../lib/api';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, pass: string) => Promise<void>;
-  loginAsPreset: (role: UserRole, email: string) => Promise<void>;
-  logout: () => void;
+  loginInit: (email: string, pass: string) => Promise<LoginInitResponse>;
+  send2FACode: (pendingToken: string, method: string) => Promise<void>;
+  verify2FA: (pendingToken: string, code: string) => Promise<void>;
+  googleVerify: (email: string) => Promise<LoginInitResponse>;
+  logout: () => Promise<void>;
+  updateUser: (user: User) => void;
   isAuthenticated: boolean;
 }
 
@@ -19,17 +22,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = getAuthToken();
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
       try {
-        const data = await api.getCurrentUser();
-        setUser(data.user);
+        // Attempt session restore via httpOnly refresh token cookie
+        const res = await api.refreshToken();
+        setUser(res.user);
       } catch (err) {
-        console.error('Failed to auto-login from stored token:', err);
-        setAuthToken(null);
+        // No valid refresh cookie or session expired
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -39,19 +37,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = async (email: string, pass: string) => {
-    const res = await api.login(email, pass);
+  const loginInit = async (email: string, pass: string): Promise<LoginInitResponse> => {
+    return await api.loginInit(email, pass);
+  };
+
+  const send2FACode = async (pendingToken: string, method: string): Promise<void> => {
+    await api.send2FACode(pendingToken, method);
+  };
+
+  const verify2FA = async (pendingToken: string, code: string): Promise<void> => {
+    const res = await api.verify2FA(pendingToken, code);
     setUser(res.user);
   };
 
-  const loginAsPreset = async (role: UserRole, email: string) => {
-    const password = 'test123';
-    await login(email, password);
+  const googleVerify = async (email: string): Promise<LoginInitResponse> => {
+    return await api.googleVerify(email);
   };
 
-  const logout = () => {
-    api.logout();
+  const logout = async () => {
+    await api.logout();
     setUser(null);
+  };
+
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
   };
 
   return (
@@ -59,9 +68,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         isLoading,
-        login,
-        loginAsPreset,
+        loginInit,
+        send2FACode,
+        verify2FA,
+        googleVerify,
         logout,
+        updateUser,
         isAuthenticated: !!user
       }}
     >
