@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../lib/api';
 import { User, LoginEvent, AuditLogEntry, ClinicStats } from '../types';
+import { StatsSkeleton, PatientListSkeleton } from './Skeletons';
 import {
   BarChart3, Users, Download, RefreshCw, Plus, ShieldCheck,
   UserCheck, Stethoscope, Lock, KeyRound, AlertCircle, CheckCircle2,
-  Clock, Activity, FileText, ChevronLeft, ChevronRight, Eye
+  Clock, Activity, FileText, ChevronLeft, ChevronRight, Eye, Loader2, X
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -167,7 +169,9 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Overview Stat Cards */}
-      {stats && (
+      {isLoading ? (
+        <StatsSkeleton />
+      ) : stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
             <div>
@@ -559,7 +563,7 @@ export const AdminDashboard: React.FC = () => {
                   required
                   value={newUserEmail}
                   onChange={(e) => setNewUserEmail(e.target.value)}
-                  placeholder="samuel.m@medflow.co.ke"
+                  placeholder="samuel.m@doctorconnect.co.ke"
                   className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 outline-none"
                 />
               </div>

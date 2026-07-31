@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../lib/api';
 import { Patient, Appointment, User } from '../types';
+import { AppointmentListSkeleton } from './Skeletons';
 import {
   Calendar,
   Clock,
@@ -14,7 +16,8 @@ import {
   RefreshCw,
   Phone,
   FileCheck,
-  CalendarCheck
+  CalendarCheck,
+  Loader2
 } from 'lucide-react';
 
 export const ReceptionistDashboard: React.FC<{ onViewPatientDetail: (id: string) => void }> = ({
@@ -438,7 +441,7 @@ export const ReceptionistDashboard: React.FC<{ onViewPatientDetail: (id: string)
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-slate-400 text-sm">Loading clinic schedule...</div>
+            <AppointmentListSkeleton count={4} />
           ) : appointments.length === 0 ? (
             <div className="p-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
               <Clock className="w-10 h-10 text-slate-300 mx-auto mb-3" />
@@ -447,21 +450,25 @@ export const ReceptionistDashboard: React.FC<{ onViewPatientDetail: (id: string)
             </div>
           ) : (
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-              {appointments.map((apt) => {
-                const isCompleted = apt.status === 'completed';
-                const isCancelled = apt.status === 'cancelled';
+              <AnimatePresence initial={false}>
+                {appointments.map((apt, idx) => {
+                  const isCompleted = apt.status === 'completed';
+                  const isCancelled = apt.status === 'cancelled';
 
-                return (
-                  <div
-                    key={apt.id}
-                    className={`p-4 rounded-xl border transition-all ${
-                      isCompleted
-                        ? 'bg-slate-50 border-slate-200 opacity-80'
-                        : isCancelled
-                        ? 'bg-red-50/40 border-red-200 opacity-60'
-                        : 'bg-white border-slate-200 hover:border-teal-300 shadow-sm'
-                    }`}
-                  >
+                  return (
+                    <motion.div
+                      key={apt.id}
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: idx * 0.03 }}
+                      className={`p-4 rounded-xl border transition-all ${
+                        isCompleted
+                          ? 'bg-slate-50 border-slate-200 opacity-80'
+                          : isCancelled
+                          ? 'bg-red-50/40 border-red-200 opacity-60'
+                          : 'bg-white border-slate-200 hover:border-teal-300 shadow-sm'
+                      }`}
+                    >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div>
                         <div className="flex items-center space-x-2">
@@ -534,9 +541,10 @@ export const ReceptionistDashboard: React.FC<{ onViewPatientDetail: (id: string)
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
+              </AnimatePresence>
             </div>
           )}
         </div>

@@ -36,7 +36,7 @@ from .utils import (
 Base.metadata.create_all(bind=engine)
 seed_database()
 
-JWT_SECRET = os.getenv("JWT_SECRET", "medflow-clinic-jwt-secret-key-2026")
+JWT_SECRET = os.getenv("JWT_SECRET", "doctor-connect-clinic-jwt-secret-key-2026")
 ALGORITHM = "HS256"
 security = HTTPBearer(auto_error=False)
 
@@ -160,7 +160,7 @@ def require_doctor(current_user: User = Depends(get_current_user)):
     return current_user
 
 app = FastAPI(
-    title="MedFlow Clinic System API",
+    title="Doctor Connect System API",
     description="FastAPI Backend with 2FA, OAuth, Audit Logs, and Refresh Tokens.",
     version="2.0.0"
 )

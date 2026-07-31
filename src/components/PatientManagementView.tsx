@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../lib/api';
 import { Patient, PatientNote, Appointment } from '../types';
+import { PatientListSkeleton, TimelineSkeleton } from './Skeletons';
 import {
   Search,
   Filter,
@@ -126,7 +128,9 @@ export const PatientManagementView: React.FC<{
       {/* Patient Grid / Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Searching patient directory...</div>
+          <div className="p-6">
+            <PatientListSkeleton count={5} />
+          </div>
         ) : patients.length === 0 ? (
           <div className="p-12 text-center text-slate-500 space-y-2">
             <User className="w-10 h-10 text-slate-300 mx-auto" />
@@ -172,12 +176,14 @@ export const PatientManagementView: React.FC<{
                     </td>
 
                     <td className="px-6 py-4 text-right">
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => handleOpenPatientDetail(p.id)}
                         className="px-3.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 text-xs font-bold transition-all cursor-pointer"
                       >
                         View Full Medical Record
-                      </button>
+                      </motion.button>
                     </td>
                   </tr>
                 ))}
@@ -188,9 +194,16 @@ export const PatientManagementView: React.FC<{
       </div>
 
       {/* Patient Detail Timeline Modal */}
-      {selectedPatient && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in duration-200">
+      <AnimatePresence>
+        {selectedPatient && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+            >
             {/* Header */}
             <div className="p-6 bg-slate-900 text-white flex items-start justify-between">
               <div>
@@ -291,9 +304,10 @@ export const PatientManagementView: React.FC<{
                 Close Record
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
     </div>
   );
 };

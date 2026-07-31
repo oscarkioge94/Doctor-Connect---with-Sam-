@@ -6,19 +6,19 @@ import {
 const API_BASE = '/api';
 
 // Access token & Refresh token stored in memory with localStorage persistence fallback
-let inMemoryAccessToken: string | null = localStorage.getItem('medflow_access_token');
-let inMemoryRefreshToken: string | null = localStorage.getItem('medflow_refresh_token');
+let inMemoryAccessToken: string | null = localStorage.getItem('doctorconnect_access_token') || localStorage.getItem('medflow_access_token');
+let inMemoryRefreshToken: string | null = localStorage.getItem('doctorconnect_refresh_token') || localStorage.getItem('medflow_refresh_token');
 
 export function getAuthToken(): string | null {
   if (!inMemoryAccessToken) {
-    inMemoryAccessToken = localStorage.getItem('medflow_access_token');
+    inMemoryAccessToken = localStorage.getItem('doctorconnect_access_token') || localStorage.getItem('medflow_access_token');
   }
   return inMemoryAccessToken;
 }
 
 export function getRefreshToken(): string | null {
   if (!inMemoryRefreshToken) {
-    inMemoryRefreshToken = localStorage.getItem('medflow_refresh_token');
+    inMemoryRefreshToken = localStorage.getItem('doctorconnect_refresh_token') || localStorage.getItem('medflow_refresh_token');
   }
   return inMemoryRefreshToken;
 }
@@ -26,16 +26,18 @@ export function getRefreshToken(): string | null {
 export function setAuthToken(token: string | null, refreshToken?: string | null): void {
   inMemoryAccessToken = token;
   if (token) {
-    localStorage.setItem('medflow_access_token', token);
+    localStorage.setItem('doctorconnect_access_token', token);
   } else {
+    localStorage.removeItem('doctorconnect_access_token');
     localStorage.removeItem('medflow_access_token');
   }
 
   if (refreshToken !== undefined) {
     inMemoryRefreshToken = refreshToken;
     if (refreshToken) {
-      localStorage.setItem('medflow_refresh_token', refreshToken);
+      localStorage.setItem('doctorconnect_refresh_token', refreshToken);
     } else {
+      localStorage.removeItem('doctorconnect_refresh_token');
       localStorage.removeItem('medflow_refresh_token');
     }
   }

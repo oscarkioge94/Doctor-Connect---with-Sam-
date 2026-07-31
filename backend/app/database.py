@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://clinic_admin:clinic_password_2026@localhost:5432/medflow_clinic_db"
+    "postgresql://clinic_admin:clinic_password_2026@localhost:5432/doctorconnect_clinic_db"
 )
 
 def create_db_engine():
@@ -19,7 +19,7 @@ def create_db_engine():
         return eng
     except Exception as e:
         print(f"[DB] PostgreSQL connection failed ({e}), using SQLite database fallback.")
-        sqlite_url = "sqlite:///./medflow_clinic_db.sqlite3"
+        sqlite_url = "sqlite:///./doctorconnect_clinic_db.sqlite3"
         return create_engine(sqlite_url, connect_args={"check_same_thread": False})
 
 engine = create_db_engine()

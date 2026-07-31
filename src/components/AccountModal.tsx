@@ -105,7 +105,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onClose }) =
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="doctor@medflow.co.ke"
+              placeholder="doctor@doctorconnect.co.ke"
               className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 outline-none"
             />
           </div>

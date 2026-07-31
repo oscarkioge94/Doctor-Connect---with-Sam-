@@ -34,7 +34,7 @@ export const TopNav: React.FC<TopNavProps> = ({ activeTab, setActiveTab, healthC
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-bold text-lg tracking-tight text-white">MedFlow</span>
+                  <span className="font-bold text-lg tracking-tight text-white">Doctor Connect</span>
                   <span className="text-xs bg-teal-500/20 text-teal-300 font-medium px-2 py-0.5 rounded-full border border-teal-500/30">
                     Clinic OS
                   </span>

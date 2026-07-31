@@ -25,7 +25,7 @@ def seed_database():
         default_users = [
             {
                 "id": "u-rec-1",
-                "email": "receptionist@medflow.co.ke",
+                "email": "receptionist@doctorconnect.co.ke",
                 "password": "test123",
                 "full_name": "Sarah Wanjiku",
                 "role": "receptionist",
@@ -34,7 +34,7 @@ def seed_database():
             },
             {
                 "id": "u-doc-1",
-                "email": "dr.jane@medflow.co.ke",
+                "email": "dr.jane@doctorconnect.co.ke",
                 "password": "test123",
                 "full_name": "Dr. Jane Muthoni",
                 "role": "doctor",
@@ -43,7 +43,7 @@ def seed_database():
             },
             {
                 "id": "u-doc-2",
-                "email": "dr.kamau@medflow.co.ke",
+                "email": "dr.kamau@doctorconnect.co.ke",
                 "password": "test123",
                 "full_name": "Dr. Peter Kamau",
                 "role": "doctor",
@@ -52,7 +52,7 @@ def seed_database():
             },
             {
                 "id": "u-admin-1",
-                "email": "admin@medflow.co.ke",
+                "email": "admin@doctorconnect.co.ke",
                 "password": "test123",
                 "full_name": "Clinic Administrator",
                 "role": "admin",

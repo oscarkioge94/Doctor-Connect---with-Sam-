@@ -3,12 +3,12 @@ version: '3.8'
 services:
   db:
     image: postgres:15-alpine
-    container_name: medflow_postgres
+    container_name: doctorconnect_postgres
     restart: always
     environment:
       POSTGRES_USER: clinic_admin
       POSTGRES_PASSWORD: clinic_password_2026
-      POSTGRES_DB: medflow_clinic_db
+      POSTGRES_DB: doctorconnect_clinic_db
     ports:
       - "5432:5432"
     volumes:
@@ -16,13 +16,13 @@ services:
 
   backend:
     build: .
-    container_name: medflow_fastapi_backend
+    container_name: doctorconnect_fastapi_backend
     restart: always
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://clinic_admin:clinic_password_2026@db:5432/medflow_clinic_db
-      - JWT_SECRET=medflow-clinic-jwt-secret-key-2026
+      - DATABASE_URL=postgresql://clinic_admin:clinic_password_2026@db:5432/doctorconnect_clinic_db
+      - JWT_SECRET=doctor-connect-clinic-jwt-secret-key-2026
       - AFRICASTALKING_USERNAME=sandbox
       - AFRICASTALKING_API_KEY=
     depends_on:

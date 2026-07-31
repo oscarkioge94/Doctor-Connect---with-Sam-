@@ -11,7 +11,7 @@ export const RemindersPortalView: React.FC = () => {
   // Manual Test SMS State
   const [testPhone, setTestPhone] = useState('+254712345678');
   const [testMessage, setTestMessage] = useState(
-    'Dear Patient, your upcoming medical appointment at MedFlow Clinic is scheduled for tomorrow at 09:00 AM. Reply CANCEL if unable to attend.'
+    'Dear Patient, your upcoming medical appointment at Doctor Connect Clinic is scheduled for tomorrow at 09:00 AM. Reply CANCEL if unable to attend.'
   );
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);

@@ -55,7 +55,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Server] MedFlow System Gateway running on http://localhost:${PORT} (Proxying /api -> FastAPI on :8000)`);
+    console.log(`[Server] Doctor Connect Gateway running on http://localhost:${PORT} (Proxying /api -> FastAPI on :8000)`);
   });
 }
 

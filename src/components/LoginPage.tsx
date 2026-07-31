@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Activity, ShieldCheck, Stethoscope, UserCheck, KeyRound, AlertCircle, Phone, Mail, ArrowLeft, RefreshCw, Lock, X, ExternalLink } from 'lucide-react';
+import { Activity, ShieldCheck, Stethoscope, UserCheck, KeyRound, AlertCircle, Phone, Mail, ArrowLeft, RefreshCw, Lock, X, ExternalLink, Loader2 } from 'lucide-react';
 import { LoginInitResponse } from '../types';
 
 export const LoginPage: React.FC = () => {
@@ -204,32 +205,67 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-600 text-white shadow-lg mb-4">
-          <Activity className="w-10 h-10" />
-        </div>
-        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">MedFlow System</h2>
-        <p className="mt-1 text-sm text-slate-600 font-medium">FastAPI + React Production-Grade Medical Platform</p>
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* STAGE 4: Ambient Vitals Pulse Signature Element (Background) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-25">
+        <svg className="w-full h-full" viewBox="0 0 1440 600" fill="none" preserveAspectRatio="none">
+          <motion.path
+            d="M 0 300 Q 200 300, 350 300 L 370 240 L 395 380 L 420 180 L 450 360 L 470 300 Q 600 300, 800 300 L 820 250 L 845 370 L 870 200 L 900 350 L 920 300 Q 1100 300, 1440 300"
+            stroke="#14b8a6"
+            strokeWidth="3"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0.2 }}
+            animate={{ pathLength: [0, 1, 1], opacity: [0.2, 0.8, 0.2] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          />
+        </svg>
+        <div className="absolute inset-0 bg-radial from-teal-500/10 via-transparent to-slate-950/80" />
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-6 shadow-xl shadow-slate-200/60 rounded-2xl border border-slate-200/80 sm:px-10">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center relative z-10">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-600 text-white shadow-xl shadow-teal-900/40 border border-teal-400/30 mb-4"
+        >
+          <Activity className="w-10 h-10" />
+        </motion.div>
+        <h2 className="text-3xl font-extrabold text-white tracking-tight">Doctor Connect System</h2>
+        <p className="mt-1 text-sm text-slate-400 font-medium">FastAPI + React Production-Grade Medical Platform</p>
+      </div>
 
-          {/* Status Banners */}
-          {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start space-x-3 text-red-700 text-sm animate-fade-in">
-              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-              <div>{error}</div>
-            </div>
-          )}
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0 relative z-10">
+        <div className="bg-white/95 backdrop-blur-md py-8 px-6 shadow-2xl shadow-slate-950/50 rounded-2xl border border-slate-200/80 sm:px-10 text-slate-900">
 
-          {infoMessage && (
-            <div className="mb-6 p-4 rounded-xl bg-teal-50 border border-teal-200 flex items-start space-x-3 text-teal-800 text-sm animate-fade-in">
-              <KeyRound className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
-              <div>{infoMessage}</div>
-            </div>
-          )}
+          {/* Status Banners with Error Shake */}
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div
+                key="error-banner"
+                initial={{ opacity: 0, y: -6, x: 0 }}
+                animate={{ opacity: 1, y: 0, x: [0, -4, 4, -4, 4, 0] }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25 }}
+                className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start space-x-3 text-red-700 text-sm"
+              >
+                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="font-medium">{error}</div>
+              </motion.div>
+            )}
+
+            {infoMessage && (
+              <motion.div
+                key="info-banner"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className="mb-6 p-4 rounded-xl bg-teal-50 border border-teal-200 flex items-start space-x-3 text-teal-800 text-sm"
+              >
+                <KeyRound className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
+                <div className="font-medium">{infoMessage}</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* STEP 1: PASSWORD / GOOGLE LOGIN */}
           {!pending2FA ? (
@@ -243,7 +279,7 @@ export const LoginPage: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="doctor@medflow.co.ke"
+                    placeholder="doctor@doctorconnect.co.ke"
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 placeholder-slate-400 text-sm transition-all outline-none"
                   />
                 </div>
@@ -264,14 +300,23 @@ export const LoginPage: React.FC = () => {
                   />
                 </div>
 
-                <button
+                <motion.button
                   id="btn-submit-login"
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-sm text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 active:bg-teal-800 disabled:opacity-50 transition-all cursor-pointer"
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.975 }}
+                  className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl shadow-sm text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 active:bg-teal-800 disabled:opacity-50 transition-all cursor-pointer"
                 >
-                  {isSubmitting ? 'Authenticating...' : 'Sign In'}
-                </button>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Authenticating...</span>
+                    </>
+                  ) : (
+                    <span>Sign In</span>
+                  )}
+                </motion.button>
               </form>
 
               {/* Google OAuth Button */}
@@ -281,11 +326,13 @@ export const LoginPage: React.FC = () => {
                   <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-slate-400 font-semibold">Or continue with</span></div>
                 </div>
 
-                <button
+                <motion.button
                   id="btn-google-login"
                   type="button"
                   onClick={() => setShowGoogleModal(true)}
                   disabled={isSubmitting}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.975 }}
                   className="w-full flex items-center justify-center space-x-3 py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-bold shadow-sm transition-all cursor-pointer"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -295,7 +342,7 @@ export const LoginPage: React.FC = () => {
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                   </svg>
                   <span>Sign in with Google</span>
-                </button>
+                </motion.button>
               </div>
 
               {/* Quick Demo Access Buttons */}
@@ -305,10 +352,12 @@ export const LoginPage: React.FC = () => {
                 </p>
 
                 <div className="space-y-2">
-                  <button
+                  <motion.button
                     id="btn-login-receptionist"
-                    onClick={() => handlePreset('receptionist@medflow.co.ke')}
+                    onClick={() => handlePreset('receptionist@doctorconnect.co.ke')}
                     disabled={isSubmitting}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.975 }}
                     className="w-full flex items-center justify-between p-3 rounded-xl border border-teal-200 bg-teal-50/60 hover:bg-teal-100/70 text-left transition-all group cursor-pointer"
                   >
                     <div className="flex items-center space-x-3">
@@ -319,12 +368,14 @@ export const LoginPage: React.FC = () => {
                       </div>
                     </div>
                     <span className="text-xs font-semibold text-teal-700 group-hover:underline">Login &rarr;</span>
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
                     id="btn-login-doctor-1"
-                    onClick={() => handlePreset('dr.jane@medflow.co.ke')}
+                    onClick={() => handlePreset('dr.jane@doctorconnect.co.ke')}
                     disabled={isSubmitting}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.975 }}
                     className="w-full flex items-center justify-between p-3 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-left transition-all group cursor-pointer"
                   >
                     <div className="flex items-center space-x-3">
@@ -335,12 +386,14 @@ export const LoginPage: React.FC = () => {
                       </div>
                     </div>
                     <span className="text-xs font-semibold text-emerald-700 group-hover:underline">Login &rarr;</span>
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
                     id="btn-login-admin"
-                    onClick={() => handlePreset('admin@medflow.co.ke')}
+                    onClick={() => handlePreset('admin@doctorconnect.co.ke')}
                     disabled={isSubmitting}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.975 }}
                     className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-left transition-all group cursor-pointer"
                   >
                     <div className="flex items-center space-x-3">
@@ -351,7 +404,7 @@ export const LoginPage: React.FC = () => {
                       </div>
                     </div>
                     <span className="text-xs font-semibold text-slate-700 group-hover:underline">Login &rarr;</span>
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </div>
@@ -493,10 +546,10 @@ export const LoginPage: React.FC = () => {
 
             <div className="space-y-2 mb-5">
               {[
-                { name: 'Dr. Jane Muthoni', email: 'dr.jane@medflow.co.ke', role: 'Cardiology Consultant' },
-                { name: 'Sarah Wanjiku', email: 'receptionist@medflow.co.ke', role: 'Lead Receptionist' },
-                { name: 'Clinic Administrator', email: 'admin@medflow.co.ke', role: 'System Admin' },
-                { name: 'Dr. Amanda Otieno', email: 'dr.amanda@medflow.co.ke', role: 'General Practitioner' }
+                { name: 'Dr. Jane Muthoni', email: 'dr.jane@doctorconnect.co.ke', role: 'Cardiology Consultant' },
+                { name: 'Sarah Wanjiku', email: 'receptionist@doctorconnect.co.ke', role: 'Lead Receptionist' },
+                { name: 'Clinic Administrator', email: 'admin@doctorconnect.co.ke', role: 'System Admin' },
+                { name: 'Dr. Amanda Otieno', email: 'dr.amanda@doctorconnect.co.ke', role: 'General Practitioner' }
               ].map((acc) => (
                 <button
                   key={acc.email}
@@ -536,7 +589,7 @@ export const LoginPage: React.FC = () => {
                   required
                   value={customGoogleEmail}
                   onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                  placeholder="user@medflow.co.ke"
+                  placeholder="user@doctorconnect.co.ke"
                   className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:ring-2 focus:ring-teal-500 outline-none"
                 />
                 <button

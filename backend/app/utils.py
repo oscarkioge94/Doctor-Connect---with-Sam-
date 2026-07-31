@@ -15,7 +15,7 @@ def mask_phone(phone: Optional[str]) -> str:
 
 def mask_email(email: Optional[str]) -> str:
     if not email or "@" not in email:
-        return "u***@medflow.co.ke"
+        return "u***@doctorconnect.co.ke"
     name, domain = email.split("@", 1)
     if len(name) <= 2:
         masked_name = name[0] + "*"
@@ -76,7 +76,7 @@ def log_login_event(
     user_id: Optional[str] = None,
     user_name: Optional[str] = None,
     ip_address: Optional[str] = "127.0.0.1",
-    user_agent: Optional[str] = "MedFlow Browser Client",
+    user_agent: Optional[str] = "Doctor Connect Browser Client",
     failure_reason: Optional[str] = None
 ) -> LoginEvent:
     event = LoginEvent(
@@ -128,5 +128,5 @@ def send_otp_sms(phone: str, code: str, patient_or_user_name: str) -> bool:
 
 def send_otp_email(email: str, code: str, user_name: str) -> bool:
     """Dispatches OTP Email via SMTP or Console Notice."""
-    print(f"[MedFlow Email Service] Dispatched 2FA OTP code '{code}' to {email} for {user_name}.")
+    print(f"[Doctor Connect Email Service] Dispatched 2FA OTP code '{code}' to {email} for {user_name}.")
     return True

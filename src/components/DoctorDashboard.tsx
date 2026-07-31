@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../lib/api';
 import { Patient, PatientNote, Appointment } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { AppointmentListSkeleton, TimelineSkeleton } from './Skeletons';
 import {
   Stethoscope,
   Clock,
@@ -17,7 +19,8 @@ import {
   PlusCircle,
   Sparkles,
   Search,
-  ArrowLeft
+  ArrowLeft,
+  Loader2
 } from 'lucide-react';
 
 export const DoctorDashboard: React.FC = () => {
@@ -180,7 +183,7 @@ export const DoctorDashboard: React.FC = () => {
           </div>
 
           {isLoading ? (
-            <div className="p-8 text-center text-slate-400 text-sm">Loading today's schedule...</div>
+            <AppointmentListSkeleton count={4} />
           ) : todayAppointments.length === 0 ? (
             <div className="p-8 text-center border-2 border-dashed border-slate-200 rounded-xl">
               <CheckCircle className="w-8 h-8 text-slate-300 mx-auto mb-2" />
@@ -193,9 +196,11 @@ export const DoctorDashboard: React.FC = () => {
                 const isCompleted = apt.status === 'completed';
 
                 return (
-                  <button
+                  <motion.button
                     key={apt.id}
                     onClick={() => handleSelectAppointment(apt)}
+                    whileHover={{ x: 2 }}
+                    whileTap={{ scale: 0.98 }}
                     className={`w-full p-3.5 rounded-xl text-left border transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-emerald-50/80 border-emerald-500 shadow-sm ring-1 ring-emerald-500'
@@ -227,7 +232,7 @@ export const DoctorDashboard: React.FC = () => {
                     <div className="text-xs text-slate-600 italic mt-1 line-clamp-1">
                       "{apt.reason}"
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -400,15 +405,26 @@ export const DoctorDashboard: React.FC = () => {
                     <p className="text-xs text-slate-500 italic">
                       Old notes are permanently archived and cannot be edited or deleted.
                     </p>
-                    <button
+                    <motion.button
                       id="btn-save-note"
                       type="submit"
                       disabled={isSavingNote || !noteContent.trim()}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
                       className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 text-white font-bold text-sm shadow-md transition-all cursor-pointer flex items-center space-x-2"
                     >
-                      <Send className="w-4 h-4" />
-                      <span>{isSavingNote ? 'Saving Note...' : 'Save & Append Note'}</span>
-                    </button>
+                      {isSavingNote ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-white" />
+                          <span>Appending Note...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          <span>Save & Append Note</span>
+                        </>
+                      )}
+                    </motion.button>
                   </div>
                 </form>
               </div>
@@ -431,11 +447,15 @@ export const DoctorDashboard: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2">
-                    {selectedPatientDetail.notes.map((n, idx) => (
-                      <div
-                        key={n.id}
-                        className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white transition-all space-y-2 relative"
-                      >
+                    <AnimatePresence initial={false}>
+                      {selectedPatientDetail.notes.map((n, idx) => (
+                        <motion.div
+                          key={n.id}
+                          initial={{ opacity: 0, y: -12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: idx === 0 ? 0 : 0.03 }}
+                          className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white transition-all space-y-2 relative"
+                        >
                         <div className="flex items-center justify-between text-xs text-slate-500">
                           <div className="flex items-center space-x-2">
                             <span className="font-extrabold text-slate-900 text-sm">
@@ -474,8 +494,9 @@ export const DoctorDashboard: React.FC = () => {
                           <Lock className="w-3 h-3 text-slate-400" />
                           <span>Audit verified • Immutable record #{n.id}</span>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
+                    </AnimatePresence>
                   </div>
                 )}
               </div>
