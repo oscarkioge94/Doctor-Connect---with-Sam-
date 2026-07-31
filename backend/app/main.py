@@ -125,6 +125,24 @@ def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User account not found.")
     return user
 
+def get_optional_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    if not credentials:
+        return None
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
+        if payload.get("type") != "access":
+            return None
+        user_id: str = payload.get("sub")
+        if not user_id:
+            return None
+        return db.query(User).filter(User.id == user_id).first()
+    except Exception:
+        return None
+
 def require_admin(current_user: User = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(
@@ -348,14 +366,15 @@ def verify_2fa(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        path="/api/auth",
+        path="/",
         max_age=7 * 24 * 3600,
         samesite="lax"
     )
 
     return {
         "user": format_user(user),
-        "token": access_token
+        "token": access_token,
+        "refreshToken": refresh_token
     }
 
 @app.post("/api/auth/refresh")
@@ -397,23 +416,24 @@ def refresh_token(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
-        path="/api/auth",
+        path="/",
         max_age=7 * 24 * 3600,
         samesite="lax"
     )
 
     return {
         "token": new_access_token,
+        "refreshToken": new_refresh_token,
         "user": format_user(user)
     }
 
 @app.post("/api/auth/logout")
-def logout(response: Response, current_user: Optional[User] = Depends(get_current_user), db: Session = Depends(get_db)):
+def logout(response: Response, current_user: Optional[User] = Depends(get_optional_current_user), db: Session = Depends(get_db)):
     if current_user:
         current_user.is_currently_active = False
         db.commit()
 
-    response.delete_cookie(key="refresh_token", path="/api/auth")
+    response.delete_cookie(key="refresh_token", path="/")
     return {"success": True, "message": "Logged out successfully."}
 
 @app.get("/api/auth/me")

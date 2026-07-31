@@ -5,25 +5,50 @@ import {
 
 const API_BASE = '/api';
 
-// Access token stored purely IN MEMORY (not localStorage) as required in Stage 1
-let inMemoryAccessToken: string | null = null;
+// Access token & Refresh token stored in memory with localStorage persistence fallback
+let inMemoryAccessToken: string | null = localStorage.getItem('medflow_access_token');
+let inMemoryRefreshToken: string | null = localStorage.getItem('medflow_refresh_token');
 
 export function getAuthToken(): string | null {
+  if (!inMemoryAccessToken) {
+    inMemoryAccessToken = localStorage.getItem('medflow_access_token');
+  }
   return inMemoryAccessToken;
 }
 
-export function setAuthToken(token: string | null): void {
-  inMemoryAccessToken = token;
+export function getRefreshToken(): string | null {
+  if (!inMemoryRefreshToken) {
+    inMemoryRefreshToken = localStorage.getItem('medflow_refresh_token');
+  }
+  return inMemoryRefreshToken;
 }
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+export function setAuthToken(token: string | null, refreshToken?: string | null): void {
+  inMemoryAccessToken = token;
+  if (token) {
+    localStorage.setItem('medflow_access_token', token);
+  } else {
+    localStorage.removeItem('medflow_access_token');
+  }
+
+  if (refreshToken !== undefined) {
+    inMemoryRefreshToken = refreshToken;
+    if (refreshToken) {
+      localStorage.setItem('medflow_refresh_token', refreshToken);
+    } else {
+      localStorage.removeItem('medflow_refresh_token');
+    }
+  }
+}
+
+async function request<T>(endpoint: string, options: RequestInit = {}, isRetry: boolean = false): Promise<T> {
   const token = getAuthToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>)
   };
 
-  if (token) {
+  if (token && !headers['Authorization']) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
@@ -41,6 +66,25 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     } catch {
       errorMsg = response.statusText || errorMsg;
     }
+
+    // Auto-retry with token refresh on 401 Unauthorized
+    if (
+      response.status === 401 &&
+      !isRetry &&
+      endpoint !== '/auth/login' &&
+      endpoint !== '/auth/2fa/verify' &&
+      endpoint !== '/auth/refresh'
+    ) {
+      try {
+        await api.refreshToken();
+        return await request<T>(endpoint, options, true);
+      } catch {
+        setAuthToken(null, null);
+        window.dispatchEvent(new Event('auth:unauthorized'));
+        throw new Error('Session expired. Please log in again.');
+      }
+    }
+
     throw new Error(errorMsg);
   }
 
@@ -65,23 +109,34 @@ export const api = {
     }),
 
   verify2FA: async (pendingToken: string, code: string) => {
-    const res = await request<{ token: string; user: User }>('/auth/2fa/verify', {
+    const res = await request<{ token: string; refreshToken?: string; user: User }>('/auth/2fa/verify', {
       method: 'POST',
       body: JSON.stringify({ pendingToken, code })
     });
-    setAuthToken(res.token);
+    setAuthToken(res.token, res.refreshToken);
     return res;
   },
 
   refreshToken: async () => {
     try {
-      const res = await request<{ token: string; user: User }>('/auth/refresh', {
-        method: 'POST'
-      });
-      setAuthToken(res.token);
+      const refreshTok = getRefreshToken();
+      const headers: Record<string, string> = {};
+      if (refreshTok) {
+        headers['Authorization'] = `Bearer ${refreshTok}`;
+      }
+
+      const res = await request<{ token: string; refreshToken?: string; user: User }>(
+        '/auth/refresh',
+        {
+          method: 'POST',
+          headers
+        },
+        true
+      );
+      setAuthToken(res.token, res.refreshToken || refreshTok);
       return res;
     } catch (err) {
-      setAuthToken(null);
+      setAuthToken(null, null);
       throw err;
     }
   },
@@ -94,7 +149,7 @@ export const api = {
     } catch {
       // Ignore network failures on logout
     } finally {
-      setAuthToken(null);
+      setAuthToken(null, null);
     }
   },
 

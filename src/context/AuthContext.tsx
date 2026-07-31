@@ -23,18 +23,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Attempt session restore via httpOnly refresh token cookie
+        // Attempt session restore via httpOnly refresh token cookie or stored token
         const res = await api.refreshToken();
         setUser(res.user);
       } catch (err) {
-        // No valid refresh cookie or session expired
+        // No valid refresh cookie/token or session expired
         setUser(null);
       } finally {
         setIsLoading(false);
       }
     };
 
+    const handleUnauthorized = () => {
+      setUser(null);
+    };
+
     initAuth();
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, []);
 
   const loginInit = async (email: string, pass: string): Promise<LoginInitResponse> => {
